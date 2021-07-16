@@ -2,7 +2,7 @@ FROM tiangolo/uvicorn-gunicorn-fastapi:python3.8
 
 ENV PYTHONPATH "${PYTHONPATH}:/"
 ENV PORT=8000
-ENV ENV=productionuv
+ENV ENV=production
 
 # Install Poetry
 RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-poetry.py | POETRY_HOME=/opt/poetry python && \
@@ -14,10 +14,10 @@ RUN curl -sSL https://raw.githubusercontent.com/python-poetry/poetry/master/get-
 
 COPY ./pyproject.toml ./poetry.lock* /app/
 
-COPY ./.env /app/
-
 RUN poetry install --no-root --no-dev
+
+COPY ./.env /app/
 
 COPY ./app /app
 
-CMD ["uvicorn", "app.main:app", "--reload"]
+CMD ["uvicorn", "app.main:app", "--reload", "--host", "0.0.0.0"]

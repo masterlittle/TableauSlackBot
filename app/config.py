@@ -16,6 +16,9 @@ class Settings(BaseSettings):
 
     BOT_NAME: str
 
+    SLACK_SIGNING_SECRET: str
+    SLACK_BOT_TOKEN: str
+
     SENTRY_DSN: Optional[str]
 
     TABLEAU_SERVER_URL: str

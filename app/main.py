@@ -27,6 +27,7 @@ app = init_sentry()
 
 @app.post(f"/slack/{bot_name}-tableau")
 async def endpoint(req: Request):
+    print(req.body())
     return await app_handler.handle(req)
 
 
