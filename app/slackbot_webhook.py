@@ -19,7 +19,7 @@ async def handle_some_action(ack, body, logger):
 
 @app.action("select_schedule")
 async def handle_some_action(ack, body, logger):
-    ack()
+    await ack()
     logger.info(body)
 
 

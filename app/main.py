@@ -11,23 +11,21 @@ from app.config import Settings
 api = FastAPI()
 
 
-def init_sentry():
+def init_sentry(app):
     if Settings().SENTRY_DSN:
         import sentry_sdk
         from sentry_sdk.integrations.asgi import SentryAsgiMiddleware
 
         sentry_sdk.init(dsn=Settings().SENTRY_DSN)
-        return SentryAsgiMiddleware(api)
-    else:
-        return api
+        app.add_middleware(SentryAsgiMiddleware)
+    return app
 
 
-app = init_sentry()
+app = init_sentry(api)
 
 
 @app.post(f"/slack/{bot_name}-tableau")
 async def endpoint(req: Request):
-    print(req.body())
     return await app_handler.handle(req)
 
 

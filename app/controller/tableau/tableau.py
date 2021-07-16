@@ -1,4 +1,5 @@
 import datetime
+import os
 import re
 
 import aiohttp
@@ -15,6 +16,7 @@ TABLEAU_CONTENT_URL = config.TABLEAU_CONTENT_URL
 TABLEAU_SERVER_API_VERSION = config.TABLEAU_SERVER_API_VERSION
 TABLEAU_SERVER_IMAGE_API_TIMEOUT = config.TABLEAU_SERVER_IMAGE_API_TIMEOUT
 
+FILE_DIR = "/tmp"
 
 async def get_tableau_auth_token():
     url = f"{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/auth/signin"
@@ -62,7 +64,7 @@ async def get_view_image(view_url: str):
         async with aiohttp.ClientSession() as session:
             async with session.get(f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge={10}',
                                    timeout=120, headers={'X-Tableau-Auth': auth_token}) as r:
-                filename = f'{view_name}-{str(datetime.datetime.now())}.png'
+                filename = os.path.join(FILE_DIR, f'{view_name}.png')
                 if r.content:
                     with open(filename, 'wb') as f:
                         f.write(await r.content.read())
