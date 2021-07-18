@@ -6,9 +6,11 @@ from selenium import webdriver
 
 def _get_driver(driver_location: str):
     options = webdriver.ChromeOptions()
-    options.headless = True
     options.add_argument('--no-sandbox')
+    options.add_argument('--remote-debugging-port=9222')
+    options.add_argument('--disable-infobars')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--headless')
     driver = webdriver.Chrome(executable_path=driver_location, options=options)
     return driver
 
