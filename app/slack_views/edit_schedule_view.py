@@ -1,16 +1,19 @@
 # Created by shitij at 14/07/21
 # Description -
+import json
+
 from app.models.db_slackbot_schedule_metadata import SlackbotScheduleMetadata
 
 
 def get_edit_schedule_view(job_info: SlackbotScheduleMetadata):
+    metadata = {"job_id": job_info.job_id}
     schedule_view = {
         "type": "modal",
         # View identifier
         "callback_id": "view_edit_schedule",
         "title": {"type": "plain_text", "text": "Edit Dashboard"},
         "submit": {"type": "plain_text", "text": "Submit"},
-        "private_metadata": job_info.job_id,
+        "private_metadata": json.dumps(metadata),
         "blocks": [
             {
                 "type": "section",

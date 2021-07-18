@@ -14,7 +14,7 @@ class TableauCommands(Enum):
     image = {"func": get_tableau_image, "doc": "`image` \n>Get the Tableau image for a particular view URL. Usage - "
                                                "`<bot> image "
                                                "<URL>`"}
-    list = {"func": None, "doc": f"*List of available commands* -"
+    help = {"func": None, "doc": f"*List of available commands* -"
                                  f" \n - {list_schedules['doc']}"
                                  f" \n - {schedule['doc']}"
                                  f" \n - {image['doc']}"}

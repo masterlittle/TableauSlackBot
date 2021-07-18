@@ -18,7 +18,21 @@ TABLEAU_SERVER_IMAGE_API_TIMEOUT = config.TABLEAU_SERVER_IMAGE_API_TIMEOUT
 
 FILE_DIR = "/tmp"
 
-async def get_tableau_auth_token():
+auth_token = None
+
+my_timeout = aiohttp.ClientTimeout(
+    total=None,  # default value is 5 minutes, set to `None` for unlimited timeout
+    sock_connect=10,  # How long to wait before an open socket allowed to connect
+    sock_read=10  # How long to wait with no data being read before timing out
+)
+
+client_args = dict(
+    trust_env=True,
+    timeout=my_timeout
+)
+
+
+async def get_tableau_auth_token(session):
     url = f"{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/auth/signin"
     auth_data = f"""
     <tsRequest>
@@ -28,30 +42,32 @@ async def get_tableau_auth_token():
         </credentials>
    </tsRequest>"""
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url, data=auth_data) as response:
-            res = xmltodict.parse(await response.text())
-            auth_token = res['tsResponse']['credentials']['@token']
-            site_id = res['tsResponse']['credentials']['site']['@id']
-            return auth_token, site_id
+    async with session.post(url, data=auth_data, timeout=TABLEAU_SERVER_IMAGE_API_TIMEOUT) as response:
+        if response.status != 200:
+            response.raise_for_status()
+        res = xmltodict.parse(await response.text())
+        auth_token = res['tsResponse']['credentials']['@token']
+        site_id = res['tsResponse']['credentials']['site']['@id']
+        return auth_token, site_id
 
 
-async def get_view_info(auth_token, site_id, view_name: str, workbook_name: str):
-    async with aiohttp.ClientSession() as session:
-        url = f"{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views?filter=viewUrlName:eq:{view_name}"
-        async with session.get(url, headers={'X-Tableau-Auth': auth_token}) as r:
-            view_dict = xmltodict.parse(await r.text())
-            if not view_dict['tsResponse']['views']:
-                raise Exception(f"The specified view {view_name} could not be found")
-            if isinstance(view_dict['tsResponse']['views']['view'], list):
-                # To check for multiple views of same name across workbooks
-                all_views = view_dict['tsResponse']['views']['view']
-                for view in all_views:
-                    if workbook_name in view['@contentUrl']:
-                        return view['@id']
-            else:
-                view_id = view_dict['tsResponse']['views']['view']['@id']
-            return view_id
+async def get_view_info(session, auth_token, site_id, view_name: str, workbook_name: str):
+    url = f"{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views?filter=viewUrlName:eq:{view_name}"
+    async with session.get(url, headers={'X-Tableau-Auth': auth_token}, timeout=TABLEAU_SERVER_IMAGE_API_TIMEOUT) as response:
+        if response.status != 200:
+            response.raise_for_status()
+        view_dict = xmltodict.parse(await response.text())
+        if not view_dict['tsResponse']['views']:
+            raise Exception(f"The specified view {view_name} could not be found")
+        if isinstance(view_dict['tsResponse']['views']['view'], list):
+            # To check for multiple views of same name across workbooks
+            all_views = view_dict['tsResponse']['views']['view']
+            for view in all_views:
+                if workbook_name in view['@contentUrl']:
+                    return view['@id']
+        else:
+            view_id = view_dict['tsResponse']['views']['view']['@id']
+        return view_id
 
 
 async def get_view_image(view_url: str):
@@ -59,15 +75,20 @@ async def get_view_image(view_url: str):
     if not view_name or not workbook_name:
         raise ValueError(f"Please check the URL {view_url} and try again.")
     else:
-        auth_token, site_id = await get_tableau_auth_token()
-        view_id = await get_view_info(auth_token, site_id, view_name, workbook_name)
-        async with aiohttp.ClientSession() as session:
-            async with session.get(f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge={10}',
-                                   timeout=120, headers={'X-Tableau-Auth': auth_token}) as r:
+        async with aiohttp.ClientSession(**client_args) as session:
+            auth_token, site_id = await get_tableau_auth_token(session)
+            view_id = await get_view_info(session, auth_token, site_id, view_name, workbook_name)
+
+            async with session.get(
+                    f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge={15}',
+                    timeout=TABLEAU_SERVER_IMAGE_API_TIMEOUT,
+                    headers={'X-Tableau-Auth': auth_token}) as response:
+                if response.status != 200:
+                    response.raise_for_status()
                 filename = os.path.join(FILE_DIR, f'{view_name}.png')
-                if r.content:
+                if response.content:
                     with open(filename, 'wb') as f:
-                        f.write(await r.content.read())
+                        f.write(await response.content.read())
                         return filename
                 else:
                     raise Exception("Report could not be generated")

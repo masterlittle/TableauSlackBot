@@ -12,12 +12,12 @@ from slack_sdk.errors import SlackApiError
 from app.controller.slack_scheduler_controller import _get_list_of_records_from_db
 from app.slack_views.create_schedule_view import get_create_schedule_view
 from app.slack_views.list_schedule_view import get_list_schedule_view, get_list_schedule_view_header
-from app.controller.tableau.tableau import get_view_image
+from app.controller.redash.redash import get_view_image
 from app.commons.backend_list import Backends
 from app.utils.log_exceptions import log_exception, log_error
 
 
-async def get_tableau_image(app, body, say, text):
+async def get_redash_image(app, body, say, text):
     try:
         await say("Loading image...")
         filename = await get_view_image(text)
@@ -43,14 +43,14 @@ async def get_tableau_image(app, body, say, text):
         log_exception(errt)
         await say(f"{str(errt)}")
     except SlackApiError as sae:
-        log_error(sae)
+        log_error(sae, sae.response)
         await say(f"Error in Slack api - {str(sae.response)}")
     except Exception as e:
         log_exception(e)
         await say(f"An error occurred while getting {text}. Error - *{str(e)}*")
 
 
-async def get_scheduled_tableau_image(body, text, channel_list: List):
+async def get_scheduled_redash_image(body, text, channel_list: List):
     app = AsyncApp()
     try:
         filename = await get_view_image(text)
@@ -95,7 +95,7 @@ async def create_schedule_view(app: AsyncApp, body, say, text):
         # Pass a valid trigger_id within 3 seconds of receiving it
         trigger_id=body["trigger_id"],
         # View payload
-        view=get_create_schedule_view(text, Backends.tableau.value))
+        view=get_create_schedule_view(text, Backends.redash.value))
 
 
 async def list_schedule_reports(app: AsyncApp, body, filter_list_by: str):

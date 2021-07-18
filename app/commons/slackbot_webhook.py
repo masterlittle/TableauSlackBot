@@ -1,6 +1,11 @@
+import json
+
 from slack_bolt.async_app import AsyncApp
 from slack_bolt.adapter.fastapi.async_handler import AsyncSlackRequestHandler
 
+from app.commons.backend_list import Backends
+from app.controller.redash.handle_redash_commands_controller import get_scheduled_redash_image
+from app.controller.redash.redash_commands import RedashCommands
 from app.controller.tableau.tableau_commands import TableauCommands
 from app.config import Settings
 from app.controller.tableau.handle_tableau_commands_controller import get_scheduled_tableau_image
@@ -38,7 +43,11 @@ async def edit_scheduled(ack, body, logger):
 @app.view("view_create_schedule")
 async def handle_create_schedule_view_events(ack, body, logger):
     await ack()
-    await action_submit_schedule_report(body, get_scheduled_tableau_image)
+    metadata = json.loads(body['view']['private_metadata'])
+    if metadata['backend'] == Backends.tableau.value:
+        await action_submit_schedule_report(body, get_scheduled_tableau_image)
+    elif metadata['backend'] == Backends.redash.value:
+        await action_submit_schedule_report(body, get_scheduled_redash_image)
 
 
 @app.view("view_edit_schedule")
@@ -69,8 +78,8 @@ async def handle_tableau_slash_commands(ack, say, body):
                 else:
                     await say(TableauCommands.schedule.value["doc"])
 
-            elif subcommand == TableauCommands.list.name:
-                await say(TableauCommands.list.value["doc"])
+            elif subcommand == TableauCommands.help.name:
+                await say(TableauCommands.help.value["doc"])
 
             elif subcommand == TableauCommands.list_schedules.name:
                 filter_schedule_by = 'user'
@@ -87,4 +96,47 @@ async def handle_tableau_slash_commands(ack, say, body):
                       f"available commands.")
     else:
         await say(f"Empty text in command is not yet supported. Use `/{bot_name}-tableau list` to see all "
+                  f"available commands.")
+
+
+@app.command(f"/{bot_name}-redash")
+async def handle_redash_slash_commands(ack, say, body):
+    await ack()
+    if 'text' in body:
+        params = body['text'].split(' ')
+        if len(params) > 0:
+            subcommand = str.strip(params[0])
+
+            if subcommand == RedashCommands.image.name:
+                if len(params) > 1:
+                    url = str.strip(params[1])
+                    await RedashCommands.image.value["func"](app, body, say, url)
+                else:
+                    await say(RedashCommands.image.value["doc"])
+
+            elif subcommand == RedashCommands.schedule.name:
+                if len(params) > 1:
+                    url = str.strip(params[1])
+                    await RedashCommands.schedule.value["func"](app, body, say, url)
+                else:
+                    await say(RedashCommands.schedule.value["doc"])
+
+            elif subcommand == RedashCommands.help.name:
+                await say(RedashCommands.help.value["doc"])
+
+            elif subcommand == RedashCommands.list_schedules.name:
+                filter_schedule_by = 'user'
+                if len(params) > 1:
+                    filter_schedule_by = str.strip(params[1])
+                if filter_schedule_by not in ['user', 'channel']:
+                    await say(f"*Error in command* \n {RedashCommands.list_schedules.value['doc']}")
+                else:
+                    await RedashCommands.list_schedules.value['func'](app, body, filter_schedule_by)
+            else:
+                await say(f"Command *{subcommand}* not supported.")
+        else:
+            await say(f"Check your command *{body['text']}* and try again. Use /{bot_name}-redash list to see all "
+                      f"available commands.")
+    else:
+        await say(f"Empty text in command is not yet supported. Use `/{bot_name}-redash list` to see all "
                   f"available commands.")

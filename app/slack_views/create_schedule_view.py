@@ -1,12 +1,16 @@
 # Created by shitij at 14/07/21
 # Description -
+import json
 
-def get_create_schedule_view(text):
+
+def get_create_schedule_view(text, backend_tool: str):
+    metadata = {"backend": backend_tool}
     schedule_view = {
         "type": "modal",
         # View identifier
         "callback_id": "view_create_schedule",
         "title": {"type": "plain_text", "text": "Schedule Dashboard"},
+        "private_metadata": json.dumps(metadata),
         "submit": {"type": "plain_text", "text": "Submit"},
         "blocks": [
             {

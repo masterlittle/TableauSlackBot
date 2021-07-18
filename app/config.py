@@ -20,13 +20,19 @@ class Settings(BaseSettings):
     SLACK_BOT_TOKEN: str
 
     SENTRY_DSN: Optional[str]
+    LOGGING_LEVEL: str = "INFO"
+
+    REDASH_API_KEY: Optional[str]
+    REDASH_SERVER_URL: Optional[str]
+    REDASH_WAIT_FOR_LOAD_TIME: int = 10
+    CHROME_DRIVER_PATH: str = "/usr/local/bin/chromedriver"
 
     TABLEAU_SERVER_URL: str
     TABLEAU_PERSONAL_ACCESS_TOKEN_NAME: str
     TABLEAU_PERSONAL_ACCESS_TOKEN_SECRET: str
     TABLEAU_CONTENT_URL: str = ""
     TABLEAU_SERVER_API_VERSION: str = "3.10"
-    TABLEAU_SERVER_IMAGE_API_TIMEOUT: int = 120
+    TABLEAU_SERVER_IMAGE_API_TIMEOUT: int = 240
 
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str

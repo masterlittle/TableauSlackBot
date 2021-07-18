@@ -57,7 +57,7 @@ def get_list_schedule_view(row, index):
                         "type": "plain_text",
                         "text": "Delete"
                     },
-                    "style": "primary",
+                    "style": "danger",
                     "value": f"{row.job_id}",
                     "action_id": "action_delete_schedule"
                 }

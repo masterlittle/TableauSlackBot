@@ -1,4 +1,5 @@
 import datetime
+import json
 import logging
 
 from slack_bolt.app.async_app import AsyncApp
@@ -101,7 +102,7 @@ async def action_view_edit_schedule(app, body):
 
 
 async def action_submit_edit_scheduled_report(body):
-    job_id = body['view']['private_metadata']
+    job_id = json.loads(body['view']['private_metadata'])['job_id']
     channel_names, channels, cron_schedule, entity_url, frequency, last_changed_by, time = await _get_scheduled_parameters(
         body)
     edited_job = edit_schedule_from_scheduler([body, entity_url, channels], cron_schedule, job_id=job_id)
