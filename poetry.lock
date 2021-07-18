@@ -137,6 +137,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "chromedriver-binary-auto"
+version = "0.1.1"
+description = "Installer for chromedriver."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "click"
 version = "8.0.1"
 description = "Composable command line interface toolkit"
@@ -462,7 +470,7 @@ multidict = ">=4.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "1d5b7ed77bb63eea5a9ebeb7c00b4eccf9569fccc4f069718857b0a5b7d8fb43"
+content-hash = "e949cfe104bca22b81414069684ab014d3d9e1756b83f3f3025ed3ac5268fe1f"
 
 [metadata.files]
 aiodns = [
@@ -648,6 +656,9 @@ cffi = [
 chardet = [
     {file = "chardet-4.0.0-py2.py3-none-any.whl", hash = "sha256:f864054d66fd9118f2e67044ac8981a54775ec5b67aed0441892edb553d21da5"},
     {file = "chardet-4.0.0.tar.gz", hash = "sha256:0d6f53a15db4120f2b08c94f11e7d93d2c911ee118b6b30a04ec3ee8310179fa"},
+]
+chromedriver-binary-auto = [
+    {file = "chromedriver-binary-auto-0.1.1.tar.gz", hash = "sha256:7c0eee0eef320f31d0673d8d49412656eb22bf38d47c4c2783f4ea86802720b1"},
 ]
 click = [
     {file = "click-8.0.1-py3-none-any.whl", hash = "sha256:fba402a4a47334742d782209a7c79bc448911afe1149d07bdabdf480b3e2f4b6"},

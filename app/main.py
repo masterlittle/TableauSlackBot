@@ -43,6 +43,10 @@ async def events(req: Request):
     return await app_handler.handle(req)
 
 
+@app.get("/")
+async def home(req: Request):
+    return "Welcome"
+
 @app.on_event("startup")
 async def run_scheduler():
     pass

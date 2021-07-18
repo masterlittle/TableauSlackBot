@@ -59,6 +59,7 @@ async def get_view_info(session, auth_token, site_id, view_name: str, workbook_n
         view_dict = xmltodict.parse(await response.text())
         if not view_dict['tsResponse']['views']:
             raise Exception(f"The specified view {view_name} could not be found")
+        print(view_dict)
         if isinstance(view_dict['tsResponse']['views']['view'], list):
             # To check for multiple views of same name across workbooks
             all_views = view_dict['tsResponse']['views']['view']
@@ -80,7 +81,7 @@ async def get_view_image(view_url: str):
             view_id = await get_view_info(session, auth_token, site_id, view_name, workbook_name)
 
             async with session.get(
-                    f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge={15}',
+                    f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge=15',
                     timeout=TABLEAU_SERVER_IMAGE_API_TIMEOUT,
                     headers={'X-Tableau-Auth': auth_token}) as response:
                 if response.status != 200:
