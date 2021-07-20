@@ -7,19 +7,21 @@ from app.config import Settings
 config = Settings()
 
 
-def log_exception(exception: Exception, message=None):
+def log_exception(exception: Exception, message=None, context=None):
     if message:
         logging.exception(message)
     else:
         logging.exception(exception)
     if config.SENTRY_DSN:
+        sentry_sdk.add_breadcrumb(crumb=context)
         sentry_sdk.capture_exception(exception)
 
 
-def log_error(exception, message=None):
+def log_error(exception, message=None, context=None):
     if message:
         logging.error(message)
     else:
         logging.error(exception)
     if config.SENTRY_DSN:
+        sentry_sdk.add_breadcrumb(crumb=context)
         sentry_sdk.capture_exception(exception)

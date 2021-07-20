@@ -22,6 +22,11 @@ async def handle_some_action(ack, body, logger):
     await ack()
 
 
+@app.action("accessory_time")
+async def handle_some_action(ack, body, logger):
+    await ack()
+
+
 @app.action("select_schedule")
 async def handle_some_action(ack, body, logger):
     await ack()
@@ -79,7 +84,7 @@ async def handle_tableau_slash_commands(ack, say, body):
                     await say(TableauCommands.schedule.value["doc"])
 
             elif subcommand == TableauCommands.help.name:
-                await say(TableauCommands.help.value["doc"])
+                await TableauCommands.help.value["func"](app, body, TableauCommands.help.value["doc"])
 
             elif subcommand == TableauCommands.list_schedules.name:
                 filter_schedule_by = 'user'
@@ -122,7 +127,7 @@ async def handle_redash_slash_commands(ack, say, body):
                     await say(RedashCommands.schedule.value["doc"])
 
             elif subcommand == RedashCommands.help.name:
-                await say(RedashCommands.help.value["doc"])
+                await TableauCommands.help.value["func"](app, body, TableauCommands.help.value["doc"])
 
             elif subcommand == RedashCommands.list_schedules.name:
                 filter_schedule_by = 'user'

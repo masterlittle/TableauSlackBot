@@ -17,6 +17,11 @@ from app.commons.backend_list import Backends
 from app.utils.log_exceptions import log_exception, log_error
 
 
+async def help(app, body, text):
+    await app.client.chat_postEphemeral(text=text, channel=body['channel_id'],
+                                        user=body['user_id'])
+
+
 async def get_tableau_image(app, body, say, text):
     try:
         await say("Loading image...")
@@ -25,28 +30,28 @@ async def get_tableau_image(app, body, say, text):
             await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
             os.remove(filename)
     except aiohttp.client_exceptions.InvalidURL as ie:
-        log_error(ie)
+        log_error(ie, context=body)
         await say(f"Invalid URL - {str(ie)}")
     except ValueError as ve:
-        log_error(ve)
+        log_error(ve, context=body)
         await say(f"Error - {str(ve)}")
     except aiohttp.client_exceptions.ClientResponseError as errh:
-        log_exception(errh)
+        log_exception(errh, context=body)
         await say(f"An error occurred with code {errh.status}. Check your url/view or try again later.")
     except aiohttp.client_exceptions.ClientConnectionError as errc:
-        log_exception(errc)
+        log_exception(errc, context=body)
         await say(f"Error Connecting to specified url")
     except asyncio.exceptions.TimeoutError as terrt:
-        log_exception(terrt)
+        log_exception(terrt, context=body)
         await say(f"Request to the specified URL timed out.")
     except aiohttp.client_exceptions.ServerTimeoutError as errt:
-        log_exception(errt)
+        log_exception(errt, context=body)
         await say(f"{str(errt)}")
     except SlackApiError as sae:
-        log_error(sae)
+        log_error(sae, context=body)
         await say(f"Error in Slack api - {str(sae.response)}")
     except Exception as e:
-        log_exception(e)
+        log_exception(e, context=body)
         await say(f"An error occurred while getting {text}. Error - *{str(e)}*")
 
 
@@ -60,32 +65,32 @@ async def get_scheduled_tableau_image(body, text, channel_list: List):
                 await app.client.files_upload(file=filename, channels=channel, filename=filename, title=text)
         os.remove(filename)
     except aiohttp.client_exceptions.InvalidURL as ie:
-        log_error(ie)
+        log_error(ie, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=str(ie), channel=channel)
     except ValueError as ve:
-        log_error(ve)
+        log_error(ve, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=str(ve), channel=channel)
     except aiohttp.client_exceptions.ClientResponseError as errh:
-        log_exception(errh)
+        log_exception(errh, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"An error occurred with code {errh.status}."
                                                    f" Check your url/view or try again later.", channel=channel)
     except aiohttp.client_exceptions.ClientConnectionError as errc:
-        log_exception(errc)
+        log_exception(errc, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"Error Connecting to specified url", channel=channel)
     except aiohttp.client_exceptions.ServerTimeoutError as errt:
-        log_exception(errt)
+        log_exception(errt, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"{str(errt)}", channel=channel)
     except SlackApiError as sae:
-        log_error(sae)
+        log_error(sae, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"Error in Slack api - {str(sae.response)}", channel=channel)
     except Exception as e:
-        log_exception(e)
+        log_exception(e, context=body)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"An error occurred while scheduling {text}. Error - *{str(e)}*",
                                               channel=channel)
