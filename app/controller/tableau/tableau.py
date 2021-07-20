@@ -59,7 +59,6 @@ async def get_view_info(session, auth_token, site_id, view_name: str, workbook_n
         view_dict = xmltodict.parse(await response.text())
         if not view_dict['tsResponse']['views']:
             raise Exception(f"The specified view {view_name} could not be found")
-        print(view_dict)
         if isinstance(view_dict['tsResponse']['views']['view'], list):
             # To check for multiple views of same name across workbooks
             all_views = view_dict['tsResponse']['views']['view']

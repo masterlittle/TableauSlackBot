@@ -25,7 +25,6 @@ class Settings(BaseSettings):
     REDASH_API_KEY: Optional[str]
     REDASH_SERVER_URL: Optional[str]
     REDASH_WAIT_FOR_LOAD_TIME: int = 10
-    CHROME_DRIVER_PATH: str = "/usr/local/bin/chromedriver"
 
     TABLEAU_SERVER_URL: str
     TABLEAU_PERSONAL_ACCESS_TOKEN_NAME: str

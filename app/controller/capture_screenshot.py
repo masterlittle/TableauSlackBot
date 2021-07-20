@@ -6,7 +6,7 @@ from selenium import webdriver
 import chromedriver_binary
 
 
-def _get_driver(driver_location: str):
+def _get_driver():
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
     options.add_argument('--remote-debugging-port=9222')
@@ -22,8 +22,8 @@ def _get_driver(driver_location: str):
     return driver
 
 
-def get_url_screenshot(driver_location: str, url: str, filename, wait_load_time: int):
-    driver: webdriver.Chrome = _get_driver(driver_location)
+def get_url_screenshot(url: str, filename, wait_load_time: int):
+    driver: webdriver.Chrome = _get_driver()
     driver.get(url)
     time.sleep(wait_load_time)
 

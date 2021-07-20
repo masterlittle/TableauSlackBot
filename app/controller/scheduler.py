@@ -35,7 +35,11 @@ def add_schedule_from_scheduler(func, args: List, cron_expression: str):
 
 
 def edit_schedule_from_scheduler(args: List, cron_expression: str, job_id: str):
-    return sch.modify_job(job_id, args=args, trigger=CronTrigger.from_crontab(cron_expression))
+    job = sch.get_job(job_id)
+    if job:
+        return sch.modify_job(job_id, args=args, trigger=CronTrigger.from_crontab(cron_expression))
+    else:
+        return None
 
 
 def remove_schedule_from_scheduler(job_id: str):

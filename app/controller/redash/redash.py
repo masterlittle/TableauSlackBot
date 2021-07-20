@@ -13,7 +13,6 @@ config = Settings()
 REDASH_SERVER_URL = config.REDASH_SERVER_URL
 REDASH_API_KEY = config.REDASH_API_KEY
 REDASH_WAIT_FOR_LOAD_TIME = config.REDASH_WAIT_FOR_LOAD_TIME
-CHROME_DRIVER_PATH = config.CHROME_DRIVER_PATH
 
 FILE_DIR = "/tmp"
 
@@ -58,6 +57,8 @@ async def get_view_image(view_url: str):
     chart_pattern = f"{REDASH_SERVER_URL}/queries/([0-9]+).*#([0-9]+)$"
     dashboard_pattern = f"{REDASH_SERVER_URL}/dashboard/([^?/|>]+)"
 
+    print(query_pattern)
+    print(view_url)
     if bool(re.search(query_pattern, view_url)):
         return await _capture_default_table(query_pattern, view_url)
     elif bool(re.search(chart_pattern, view_url)):
@@ -112,5 +113,4 @@ async def _capture_default_table(query_pattern, view_url):
 
 async def _async_capture_screenshot(url, filename):
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(executor, get_url_screenshot, CHROME_DRIVER_PATH,
-                               url, filename, REDASH_WAIT_FOR_LOAD_TIME)
+    await loop.run_in_executor(executor, get_url_screenshot, url, filename, REDASH_WAIT_FOR_LOAD_TIME)

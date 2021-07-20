@@ -32,7 +32,7 @@ async def get_redash_image(app, body, say, text):
         await say(f"Error - {str(ve)}")
     except aiohttp.client_exceptions.ClientResponseError as errh:
         log_exception(errh)
-        await say(f"An error occurred with code {errh.status}. Check your view or try again later.")
+        await say(f"An error occurred with code {errh.status}. Check your url/view or try again later.")
     except aiohttp.client_exceptions.ClientConnectionError as errc:
         log_exception(errc)
         await say(f"Error Connecting to specified url")
@@ -71,7 +71,7 @@ async def get_scheduled_redash_image(body, text, channel_list: List):
         log_exception(errh)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"An error occurred with code {errh.status}."
-                                                   f" Check your view or try again later.", channel=channel)
+                                                   f" Check your url/view or try again later.", channel=channel)
     except aiohttp.client_exceptions.ClientConnectionError as errc:
         log_exception(errc)
         for channel in channel_list:
