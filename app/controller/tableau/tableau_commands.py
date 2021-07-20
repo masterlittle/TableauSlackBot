@@ -1,6 +1,6 @@
 from enum import Enum
 from app.controller.tableau.handle_tableau_commands_controller import get_tableau_image, create_schedule_view,\
-    list_schedule_reports, help
+    list_schedule_reports, help, download_tableau_view
 
 
 class TableauCommands(Enum):
@@ -12,9 +12,12 @@ class TableauCommands(Enum):
     schedule = {"func": create_schedule_view, "doc": "`schedule` \n>Schedule your Tableau view URL. Usage - `<bot> "
                                                      "schedule <URL>`"}
     image = {"func": get_tableau_image, "doc": "`image` \n>Get the Tableau image for a particular view URL. Usage - "
-                                               "`<bot> image "
-                                               "<URL>`"}
+                                               "`<bot> image <URL>`"}
+    download = {"func": download_tableau_view, "doc": "`download` \n>Download the Tableau crossdata for a particular"
+                                                      " view URL. Usage - `<bot> download <URL>`"}
+
     help = {"func": help, "doc": f"*List of available commands* -"
                                  f" \n - {list_schedules['doc']}"
                                  f" \n - {schedule['doc']}"
+                                 f" \n - {download['doc']}"
                                  f" \n - {image['doc']}"}

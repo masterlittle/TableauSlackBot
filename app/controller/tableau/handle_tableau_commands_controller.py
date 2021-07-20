@@ -1,6 +1,7 @@
 # Created by shitij at 08/07/21
 # Description -
 import asyncio
+import contextlib
 import logging
 import os
 from typing import List
@@ -12,23 +13,19 @@ from slack_sdk.errors import SlackApiError
 from app.controller.slack_scheduler_controller import _get_list_of_records_from_db
 from app.slack_views.create_schedule_view import get_create_schedule_view
 from app.slack_views.list_schedule_view import get_list_schedule_view, get_list_schedule_view_header
-from app.controller.tableau.tableau import get_view_image
+from app.controller.tableau.tableau import get_view_image, download_view_crosstab
 from app.commons.backend_list import Backends
 from app.utils.log_exceptions import log_exception, log_error
 
 
-async def help(app, body, text):
+async def help(app, body, say, text):
     await app.client.chat_postEphemeral(text=text, channel=body['channel_id'],
                                         user=body['user_id'])
 
 
-async def get_tableau_image(app, body, say, text):
+async def handle_instant_command(func, app, body, say, text):
     try:
-        await say("Loading image...")
-        filename = await get_view_image(text)
-        if filename:
-            await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
-            os.remove(filename)
+        await func(app, body, say, text)
     except aiohttp.client_exceptions.InvalidURL as ie:
         log_error(ie, context=body)
         await say(f"Invalid URL - {str(ie)}")
@@ -53,6 +50,28 @@ async def get_tableau_image(app, body, say, text):
     except Exception as e:
         log_exception(e, context=body)
         await say(f"An error occurred while getting {text}. Error - *{str(e)}*")
+
+
+async def get_tableau_image(app, body, say, text):
+    try:
+        await say("Loading image...")
+        filename = await get_view_image(text)
+        if filename:
+            await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(filename)
+
+
+async def download_tableau_view(app, body, say, text):
+    try:
+        await say("Downloading data. Please hold on...")
+        filename = await download_view_crosstab(text)
+        if filename:
+            await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
+    finally:
+        with contextlib.suppress(FileNotFoundError):
+            os.remove(filename)
 
 
 async def get_scheduled_tableau_image(body, text, channel_list: List):

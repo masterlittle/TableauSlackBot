@@ -8,7 +8,7 @@ from app.controller.redash.handle_redash_commands_controller import get_schedule
 from app.controller.redash.redash_commands import RedashCommands
 from app.controller.tableau.tableau_commands import TableauCommands
 from app.config import Settings
-from app.controller.tableau.handle_tableau_commands_controller import get_scheduled_tableau_image
+from app.controller.tableau.handle_tableau_commands_controller import get_scheduled_tableau_image, handle_instant_command
 from app.controller.slack_scheduler_controller import action_submit_remove_scheduled_report, action_view_edit_schedule, \
     action_submit_edit_scheduled_report, action_submit_schedule_report
 
@@ -72,9 +72,16 @@ async def handle_tableau_slash_commands(ack, say, body):
             if subcommand == TableauCommands.image.name:
                 if len(params) > 1:
                     url = str.strip(params[1])
-                    await TableauCommands.image.value["func"](app, body, say, url)
+                    await handle_instant_command(TableauCommands.image.value["func"], app, body, say, url)
                 else:
                     await say(TableauCommands.image.value["doc"])
+
+            elif subcommand == TableauCommands.download.name:
+                if len(params) > 1:
+                    url = str.strip(params[1])
+                    await handle_instant_command(TableauCommands.download.value["func"], app, body, say, url)
+                else:
+                    await say(TableauCommands.download.value["doc"])
 
             elif subcommand == TableauCommands.schedule.name:
                 if len(params) > 1:
@@ -84,7 +91,8 @@ async def handle_tableau_slash_commands(ack, say, body):
                     await say(TableauCommands.schedule.value["doc"])
 
             elif subcommand == TableauCommands.help.name:
-                await TableauCommands.help.value["func"](app, body, TableauCommands.help.value["doc"])
+                await handle_instant_command(TableauCommands.help.value["func"], app, body, say,
+                                             TableauCommands.help.value["doc"])
 
             elif subcommand == TableauCommands.list_schedules.name:
                 filter_schedule_by = 'user'

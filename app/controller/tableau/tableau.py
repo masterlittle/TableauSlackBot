@@ -94,6 +94,30 @@ async def get_view_image(view_url: str):
                     raise Exception("Report could not be generated")
 
 
+async def download_view_crosstab(view_url: str):
+    workbook_name, view_name = await get_view_name(view_url)
+    if not view_name or not workbook_name:
+        raise ValueError(f"Please check the URL {view_url} and try again.")
+    else:
+        async with aiohttp.ClientSession(**client_args) as session:
+            auth_token, site_id = await get_tableau_auth_token(session)
+            view_id = await get_view_info(session, auth_token, site_id, view_name, workbook_name)
+
+            async with session.get(
+                    f'{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/crosstab/excel?maxAge=15',
+                    timeout=30,
+                    headers={'X-Tableau-Auth': auth_token}) as response:
+                if response.status != 200:
+                    response.raise_for_status()
+                filename = os.path.join(FILE_DIR, f'{view_name}.xlsx')
+                if response.content:
+                    with open(filename, 'wb') as f:
+                        f.write(await response.content.read())
+                        return filename
+                else:
+                    raise Exception("Report could not be downloaded")
+
+
 async def get_view_name(view_url: str):
     pattern = "^.*views/(.*)/(.*)\?.*$"
     a = re.search(pattern, view_url)
