@@ -15,7 +15,6 @@ def get_schedules(hour, minute):
     return {
         'HOURLY': f'{minute} */1 * * * ',
         'DAILY': f'{minute} {hour} * * *',
-        'EVERY-MINUTE': '* * * * *',
         'WEEKLY-MONDAY': f'{minute} {hour} * * MON',
         'WEEKLY-WEDNESDAY': f'{minute} {hour} * * WED'
     }
