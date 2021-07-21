@@ -34,6 +34,10 @@ the power of Slack API for a lot of other usecases.
 
  - Run the command ```uvicorn app.main:app --reload```  
 
+## Installing using Docker
+  - Add your environment variables in .env file (or pass them at runtime).
+  - Run command `docker build . -t vizbot && docker run --rm --env-file=.env -p 8000:8000 vizbot`
+
 ## How to use
  - Install your bot in the Slack workspace.
  - Add the bot to the channel of your choice, either private or public. Use the command `@botname`
