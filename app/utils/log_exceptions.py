@@ -13,7 +13,7 @@ def log_exception(exception: Exception, message=None, context=None):
     else:
         logging.exception(exception)
     if config.SENTRY_DSN:
-        sentry_sdk.add_breadcrumb(crumb=context)
+        sentry_sdk.add_breadcrumb(level='error', data=context)
         sentry_sdk.capture_exception(exception)
 
 
@@ -23,5 +23,5 @@ def log_error(exception, message=None, context=None):
     else:
         logging.error(exception)
     if config.SENTRY_DSN:
-        sentry_sdk.add_breadcrumb(crumb=context)
+        sentry_sdk.add_breadcrumb(level='exception', data=context)
         sentry_sdk.capture_exception(exception)

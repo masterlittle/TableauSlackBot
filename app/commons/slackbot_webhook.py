@@ -8,9 +8,11 @@ from app.controller.redash.handle_redash_commands_controller import get_schedule
 from app.controller.redash.redash_commands import RedashCommands
 from app.controller.tableau.tableau_commands import TableauCommands
 from app.config import Settings
-from app.controller.tableau.handle_tableau_commands_controller import get_scheduled_tableau_image, handle_instant_command
+from app.controller.base_handle_commands_controller import handle_instant_command, list_schedule_reports
+from app.controller.tableau.handle_tableau_commands_controller import get_scheduled_tableau_image
 from app.controller.slack_scheduler_controller import action_submit_remove_scheduled_report, action_view_edit_schedule, \
     action_submit_edit_scheduled_report, action_submit_schedule_report
+from app.commons.backend_list import Backends
 
 app = AsyncApp()
 app_handler = AsyncSlackRequestHandler(app)
@@ -50,9 +52,9 @@ async def handle_create_schedule_view_events(ack, body, logger):
     await ack()
     metadata = json.loads(body['view']['private_metadata'])
     if metadata['backend'] == Backends.tableau.value:
-        await action_submit_schedule_report(body, get_scheduled_tableau_image)
+        await action_submit_schedule_report(body, get_scheduled_tableau_image, Backends.tableau.value)
     elif metadata['backend'] == Backends.redash.value:
-        await action_submit_schedule_report(body, get_scheduled_redash_image)
+        await action_submit_schedule_report(body, get_scheduled_redash_image, Backends.redash.value)
 
 
 @app.view("view_edit_schedule")
@@ -101,7 +103,7 @@ async def handle_tableau_slash_commands(ack, say, body):
                 if filter_schedule_by not in ['user', 'channel']:
                     await say(f"*Error in command* \n {TableauCommands.list_schedules.value['doc']}")
                 else:
-                    await TableauCommands.list_schedules.value['func'](app, body, filter_schedule_by)
+                    await TableauCommands.list_schedules.value['func'](app, body, filter_schedule_by, Backends.tableau.value)
             else:
                 await say(f"Command *{subcommand}* not supported.")
         else:
@@ -135,7 +137,7 @@ async def handle_redash_slash_commands(ack, say, body):
                     await say(RedashCommands.schedule.value["doc"])
 
             elif subcommand == RedashCommands.help.name:
-                await TableauCommands.help.value["func"](app, body, TableauCommands.help.value["doc"])
+                await RedashCommands.help.value["func"](app, body, say, RedashCommands.help.value["doc"])
 
             elif subcommand == RedashCommands.list_schedules.name:
                 filter_schedule_by = 'user'
@@ -144,7 +146,8 @@ async def handle_redash_slash_commands(ack, say, body):
                 if filter_schedule_by not in ['user', 'channel']:
                     await say(f"*Error in command* \n {RedashCommands.list_schedules.value['doc']}")
                 else:
-                    await RedashCommands.list_schedules.value['func'](app, body, filter_schedule_by)
+                    await RedashCommands.list_schedules.value['func'](app, body, filter_schedule_by,
+                                                                      Backends.redash.value)
             else:
                 await say(f"Command *{subcommand}* not supported.")
         else:

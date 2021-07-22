@@ -5,12 +5,12 @@ Vizack aims to bring the power of data tools (primarily visualisation tools) to 
 the power of Slack API for a lot of other usecases.
 
 ## Current backend tools and features supported
-- **Tableau**
+- **Tableau Slack bot**
   - Get an image of a view into a Slack channel.
   - Download crosstab data for a view into a slack channel.
   - Schedule a view to be sent to multiple channels at various frequencies.
   - List the schedules that have been set up and filter by your user or channel.  
-- **Redash**
+- **Redash Slack bot**
     - Get an image of a view into a Slack channel.
     - Schedule a view to be sent to multiple channels at various frequencies.
     - List the schedules that have been set up and filter by your user or channel.
@@ -20,18 +20,18 @@ the power of Slack API for a lot of other usecases.
  - Visit https://api.slack.com/apps and create a new app using the `app.manifest` file included in this
    repository as a sample file. You need to give your bot name, and the URL of the webhook service
    which we will be setting up.
+
+   
+- **The bot name in the Slack app manifest, and the bot name in your .env file should match**
+- **Similarly, the backend url in the Slack app manifest, and the url for the backend deployment should match.
+  For local deployments consider using ngrok to create a public url.**
+
+
  - Install poetry package manager using ```pip3 install poetry```
  - Install python dependencies (ideally within a virtual environment) ```poetry install```  
  - Edit your .env file and fill in the requisite variables. A sample .env file has been provided 
    in the repository. All optional and required variables have been marked and can be found in config.py with the config 
    file having some sane defaults where applicable.
-   
-
- - **The bot name in the Slack app manifest, and the bot name in your .env file should match**
- - **Similarly, the backend url in the Slack app manifest, and the url for the backend deployment should match. 
-   For local deployments consider using ngrok to create a public url.**
-   
-
  - Run the command ```uvicorn app.main:app --reload```  
 
 ## Installing using Docker

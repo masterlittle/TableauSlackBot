@@ -1,6 +1,6 @@
 from enum import Enum
-from app.controller.redash.handle_redash_commands_controller import get_redash_image, create_schedule_view, \
-    list_schedule_reports, help
+from app.controller.redash.handle_redash_commands_controller import get_redash_image, create_schedule_view, help
+from app.controller.base_handle_commands_controller import list_schedule_reports
 
 
 class RedashCommands(Enum):

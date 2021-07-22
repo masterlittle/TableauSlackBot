@@ -57,8 +57,6 @@ async def get_view_image(view_url: str):
     chart_pattern = f"{REDASH_SERVER_URL}/queries/([0-9]+).*#([0-9]+)$"
     dashboard_pattern = f"{REDASH_SERVER_URL}/dashboard/([^?/|>]+)"
 
-    print(query_pattern)
-    print(view_url)
     if bool(re.search(query_pattern, view_url)):
         return await _capture_default_table(query_pattern, view_url)
     elif bool(re.search(chart_pattern, view_url)):

@@ -1,6 +1,6 @@
 from enum import Enum
-from app.controller.tableau.handle_tableau_commands_controller import get_tableau_image, create_schedule_view,\
-    list_schedule_reports, help, download_tableau_view
+from app.controller.tableau.handle_tableau_commands_controller import get_tableau_image, create_schedule_view, help, download_tableau_view
+from app.controller.base_handle_commands_controller import list_schedule_reports
 
 
 class TableauCommands(Enum):

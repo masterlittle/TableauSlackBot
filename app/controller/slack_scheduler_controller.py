@@ -14,6 +14,7 @@ from app.utils.database import session_scope
 def get_schedules(hour, minute):
     return {
         'HOURLY': f'{minute} */1 * * * ',
+        'EVERY-MINUTE': '* * * * *',
         'DAILY': f'{minute} {hour} * * *',
         'WEEKLY-MONDAY': f'{minute} {hour} * * MON',
         'WEEKLY-WEDNESDAY': f'{minute} {hour} * * WED'
@@ -50,22 +51,24 @@ async def _get_scheduled_parameters(body):
     return channel_names, channels, cron_schedule, entity_url, frequency, last_changed_by, time
 
 
-async def _get_list_of_records_from_db(body, filter_list_by):
+async def _get_list_of_records_from_db(body, filter_list_by, backend_tool):
     with session_scope() as session:
         if filter_list_by == 'user':
             result = session.query(SlackbotScheduleMetadata).filter(
-                SlackbotScheduleMetadata.owner == body['user_name']).all()
+                SlackbotScheduleMetadata.owner == body['user_name']).filter(
+                SlackbotScheduleMetadata.backend_tool == backend_tool).all()
             header_text = body['user_name']
         elif filter_list_by == 'channel':
             result = session.query(SlackbotScheduleMetadata).filter(
-                SlackbotScheduleMetadata.target_channels.any(f"{body['channel_name']}")).all()
+                SlackbotScheduleMetadata.target_channels.any(f"{body['channel_name']}")).filter(
+                SlackbotScheduleMetadata.backend_tool == backend_tool).all()
             header_text = body['channel_name']
         else:
             return
     return result, header_text
 
 
-async def action_submit_schedule_report(body, scheduled_func):
+async def action_submit_schedule_report(body, scheduled_func, backend_tool):
     channel_names, channels, cron_schedule, entity_url, frequency, last_changed_by, time = await _get_scheduled_parameters(
         body)
 
@@ -80,7 +83,7 @@ async def action_submit_schedule_report(body, scheduled_func):
                                                     cron_expression=cron_schedule,
                                                     target_channels=channel_names,
                                                     target_channels_id=channels,
-                                                    backend_tool='tableau',
+                                                    backend_tool=backend_tool,
                                                     schedule_name=frequency,
                                                     schedule_time=time)
         session.add(new_schedule_job)
@@ -102,7 +105,7 @@ async def action_view_edit_schedule(app, body):
     else:
         print(body)
         await app.client.chat_postEphemeral(text=f"Job has already been removed.", user=body['user']['id'],
-                                      channel=body['container']['channel_id'])
+                                            channel=body['container']['channel_id'])
 
 
 async def action_submit_edit_scheduled_report(body):
@@ -110,6 +113,7 @@ async def action_submit_edit_scheduled_report(body):
     channel_names, channels, cron_schedule, entity_url, frequency, last_changed_by, time = await _get_scheduled_parameters(
         body)
     edited_job = edit_schedule_from_scheduler([body, entity_url, channels], cron_schedule, job_id=job_id)
+    print(edited_job)
     if edited_job:
         with session_scope() as session:
             job = session.query(SlackbotScheduleMetadata).filter(SlackbotScheduleMetadata.job_id == job_id).first()
@@ -121,12 +125,13 @@ async def action_submit_edit_scheduled_report(body):
             job.last_changed_by = last_changed_by,
             job.scheduled_entity_text = entity_url,
             job.cron_expression = cron_schedule,
-            job.backend_tool = 'tableau',
             job.schedule_name = frequency,
             job.schedule_time = time
 
             session.commit()
             logging.info(f"Schedule edited for {entity_url} created by {last_changed_by} at {datetime.datetime.now()}")
+    else:
+        print("Not edited")
 
 
 async def action_submit_remove_scheduled_report(app, body):

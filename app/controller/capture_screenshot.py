@@ -28,7 +28,7 @@ def get_url_screenshot(url: str, filename, wait_load_time: int):
     time.sleep(wait_load_time)
 
     S = lambda x: driver.execute_script('return document.body.parentNode.scroll' + x)
-    driver.set_window_size(S('Width') + 1200, S('Height'))  # May need manual adjustment
+    driver.set_window_size(S('Width') + 2000, S('Height'))  # May need manual adjustment
     driver.find_element_by_tag_name('body').screenshot(filename=filename)
 
     driver.quit()
