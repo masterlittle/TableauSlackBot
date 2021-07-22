@@ -21,6 +21,7 @@ async def help(app, body, say, text):
 
 
 async def get_redash_image(app, body, say, text):
+    filename = None
     try:
         await say("Loading image...")
         filename = await get_view_image(text)
@@ -28,7 +29,8 @@ async def get_redash_image(app, body, say, text):
             await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
     finally:
         with contextlib.suppress(FileNotFoundError):
-            os.remove(filename)
+            if filename:
+                os.remove(filename)
 
 
 async def get_scheduled_redash_image(body, text, channel_list: List):

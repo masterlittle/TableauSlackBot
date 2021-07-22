@@ -24,25 +24,29 @@ async def help(app, body, say, text):
 
 
 async def get_tableau_image(app, body, say, text):
+    screenshot_filename = None
     try:
         await say("Loading image...")
-        filename = await get_view_image(text)
-        if filename:
-            await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
+        screenshot_filename = await get_view_image(text)
+        if screenshot_filename:
+            await app.client.files_upload(file=screenshot_filename, channels=body['channel_id'], title=text)
     finally:
         with contextlib.suppress(FileNotFoundError):
-            os.remove(filename)
+            if screenshot_filename:
+                os.remove(screenshot_filename)
 
 
 async def download_tableau_view(app, body, say, text):
+    downloaded_filename = None
     try:
         await say("Downloading data. Please hold on...")
-        filename = await download_view_crosstab(text)
-        if filename:
-            await app.client.files_upload(file=filename, channels=body['channel_id'], title=text)
+        downloaded_filename = await download_view_crosstab(text)
+        if downloaded_filename:
+            await app.client.files_upload(file=downloaded_filename, channels=body['channel_id'], title=text)
     finally:
         with contextlib.suppress(FileNotFoundError):
-            os.remove(filename)
+            if downloaded_filename:
+                os.remove(downloaded_filename)
 
 
 async def get_scheduled_tableau_image(body, text, channel_list: List):
