@@ -14,7 +14,6 @@ from app.utils.database import session_scope
 def get_schedules(hour, minute):
     return {
         'HOURLY': f'{minute} */1 * * * ',
-        'EVERY-MINUTE': '* * * * *',
         'DAILY': f'{minute} {hour} * * *',
         'WEEKLY-MONDAY': f'{minute} {hour} * * MON',
         'WEEKLY-WEDNESDAY': f'{minute} {hour} * * WED'

@@ -92,13 +92,6 @@ def get_edit_schedule_view(job_info: SlackbotScheduleMetadata):
                         {
                             "text": {
                                 "type": "plain_text",
-                                "text": "EVERY-MINUTE"
-                            },
-                            "value": "EVERY-MINUTE"
-                        },
-                        {
-                            "text": {
-                                "type": "plain_text",
                                 "text": "DAILY"
                             },
                             "value": "DAILY"

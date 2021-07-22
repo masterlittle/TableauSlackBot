@@ -91,13 +91,6 @@ def get_create_schedule_view(text, backend_tool: str):
                             {
                                 "text": {
                                     "type": "plain_text",
-                                    "text": "EVERY-MINUTE"
-                                },
-                                "value": "EVERY-MINUTE"
-                            },
-                            {
-                                "text": {
-                                    "type": "plain_text",
                                     "text": "DAILY"
                                 },
                                 "value": "DAILY"
