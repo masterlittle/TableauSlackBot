@@ -62,6 +62,7 @@ the power of Slack API for a lot of other usecases.
   - Selenium python
   - Asyncio
   - aiohttp
+  - NewRelic & Sentry (Optional)
 
 ## Disclaimer
 For all backend tools, please verify within your org if needed, about privacy, security and licensing concerns beforehand.

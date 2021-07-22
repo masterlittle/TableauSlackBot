@@ -29,12 +29,12 @@ app = init_sentry(api)
 
 
 @app.post(f"/slack/{bot_name}-tableau")
-async def endpoint(req: Request):
+async def tableau_endpoint(req: Request):
     return await app_handler.handle(req)
 
 
 @app.post(f"/slack/{bot_name}-redash")
-async def endpoint(req: Request):
+async def redash_endpoint(req: Request):
     return await app_handler.handle(req)
 
 
