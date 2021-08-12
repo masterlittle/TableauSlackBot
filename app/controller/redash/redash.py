@@ -1,6 +1,7 @@
 import json
 import os
 import re
+import string
 
 import aiohttp
 from app.controller.capture_screenshot import get_url_screenshot
@@ -72,6 +73,7 @@ async def _capture_dashboard(dashboard_pattern, view_url):
     dashboard = await get_dashboard(dashboard_id)
     if dashboard:
         filename = os.path.join(FILE_DIR, f"{dashboard['slug']}-dashboard-{str(dashboard['id'])}.png")
+        filename = re.sub(r'[^\w\s]', '', filename)
         if 'public_url' in dashboard:
             await _async_capture_screenshot(dashboard['public_url'], filename)
             return filename
@@ -89,7 +91,9 @@ async def _capture_chart(chart_pattern, view_url):
     if query_data:
         visualization = tuple(viz for viz in query_data['visualizations'] if str(viz['id']) == visualization_id)
         embed_url = f"{REDASH_SERVER_URL}/embed/query/{query_id}/visualization/{visualization_id}?api_key={REDASH_API_KEY}"
-        filename = os.path.join(FILE_DIR, f"{query_data['name']}-{visualization[0]['name']}-query-{query_id}-visualization-{visualization_id}.png")
+        filename = os.path.join(FILE_DIR,
+                                f"{query_data['name']}-{visualization[0]['name']}-query-{query_id}-visualization-{visualization_id}.png")
+        filename = re.sub(r'[^\w\s]', '', filename)
         await _async_capture_screenshot(embed_url, filename)
         return filename
     else:
@@ -102,7 +106,9 @@ async def _capture_default_table(query_pattern, view_url):
     if query_data:
         visualization_id = query_data['visualizations'][0]['id']
         embed_url = f"{REDASH_SERVER_URL}/embed/query/{query_id}/visualization/{visualization_id}?api_key={REDASH_API_KEY}"
-        filename = os.path.join(FILE_DIR, f"{query_data['name']}-{visualization_id}-query-{query_id}-visualization-{visualization_id}.png")
+        filename = os.path.join(FILE_DIR,
+                                f"{query_data['name']}-{visualization_id}-query-{query_id}-visualization-{visualization_id}.png")
+        filename = re.sub(r'[^\w\s]', '', filename)
         await _async_capture_screenshot(embed_url, filename)
         return filename
     else:

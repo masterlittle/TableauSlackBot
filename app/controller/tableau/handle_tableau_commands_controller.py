@@ -2,7 +2,6 @@
 # Description -
 import asyncio
 import contextlib
-import logging
 import os
 from typing import List
 
@@ -10,9 +9,7 @@ import aiohttp.client_exceptions
 from slack_bolt.app.async_app import AsyncApp
 from slack_sdk.errors import SlackApiError
 
-from app.controller.slack_scheduler_controller import _get_list_of_records_from_db
 from app.slack_views.create_schedule_view import get_create_schedule_view
-from app.slack_views.list_schedule_view import get_list_schedule_view, get_list_schedule_view_header
 from app.controller.tableau.tableau import get_view_image, download_view_crosstab
 from app.commons.backend_list import Backends
 from app.utils.log_exceptions import log_exception, log_error

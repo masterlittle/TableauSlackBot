@@ -89,7 +89,7 @@ async def get_view_image(view_url: str):
                 if response.content:
                     with open(filename, 'wb') as f:
                         f.write(await response.content.read())
-                        return filename
+                        return filename, view_name
                 else:
                     raise Exception("Report could not be generated")
 
