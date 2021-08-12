@@ -11,7 +11,7 @@ from selenium.common.exceptions import NoSuchElementException, NoSuchWindowExcep
 def _get_driver():
     options = webdriver.ChromeOptions()
     options.add_argument('--no-sandbox')
-    options.add_argument('--remote-debugging-port=9224')
+    options.add_argument('--remote-debugging-port=9222')
     options.add_argument("--disable-gpu")
     options.add_argument("--single-process")
     options.add_argument('--disable-infobars')
@@ -31,13 +31,12 @@ def get_url_screenshot(url: str, filename, wait_load_time: int, retries=1):
         time.sleep(wait_load_time)
 
         S = lambda x: driver.execute_script('return document.body.parentNode.scroll' + x)
-        driver.set_window_size(1400, S('Height'))  # May need manual adjustment
+        driver.set_window_size(1240, S('Height'))  # May need manual adjustment
         driver.find_element_by_tag_name('body').screenshot(filename=filename)
 
-        close_driver(driver)
     except (NoSuchWindowException, NoSuchElementException, WebDriverException, SessionNotCreatedException) as e:
-        close_driver(driver)
         if retries >= 0:
+            close_driver(driver)
             get_url_screenshot(url, filename, wait_load_time, retries - 1)
         else:
             raise e
