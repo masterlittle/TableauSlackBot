@@ -24,7 +24,8 @@ async def get_tableau_image(app, body, say, text):
     screenshot_filename = None
     try:
         await say("Loading image...")
-        screenshot_filename = await get_view_image(text)
+        screenshot_filename, view_name = await get_view_image(text)
+        print(screenshot_filename)
         if screenshot_filename:
             await app.client.files_upload(file=screenshot_filename, channels=body['channel_id'], title=text)
     finally:

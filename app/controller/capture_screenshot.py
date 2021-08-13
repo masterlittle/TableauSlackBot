@@ -44,8 +44,6 @@ def get_url_screenshot(url: str, filename, wait_load_time: int, retries=1):
         close_driver(driver)
 
 
-def close_driver(driver):
+def close_driver(driver: webdriver.Chrome):
     if driver:
-        driver.stop_client()
-        driver.close()
         driver.quit()
