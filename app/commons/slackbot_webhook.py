@@ -18,6 +18,7 @@ app = AsyncApp()
 app_handler = AsyncSlackRequestHandler(app)
 bot_name = Settings().BOT_NAME
 
+
 @app.action("select_channels")
 async def handle_some_action(ack, body, logger):
     await ack()

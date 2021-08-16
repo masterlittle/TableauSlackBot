@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request
 
 from app.commons.slackbot_webhook import app_handler, bot_name
+from app.controller.chromedriver import driver
 
 from app.config import Settings
 
@@ -47,6 +48,9 @@ async def events(req: Request):
 async def home(req: Request):
     return "Welcome"
 
-@app.on_event("startup")
+
+@app.on_event("shutdown")
 async def run_scheduler():
-    pass
+    logging.info("Stopping driver...")
+    if driver:
+        driver.quit()

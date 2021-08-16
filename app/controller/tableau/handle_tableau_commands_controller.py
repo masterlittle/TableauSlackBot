@@ -50,7 +50,7 @@ async def download_tableau_view(app, body, say, text):
 async def get_scheduled_tableau_image(body, text, channel_list: List):
     app = AsyncApp()
     try:
-        filename = await get_view_image(text)
+        filename, view_name = await get_view_image(text)
         for channel in channel_list:
             await app.client.chat_postMessage(text=f"Scheduled report for {text} incoming", channel=channel)
             if filename:

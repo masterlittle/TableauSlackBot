@@ -53,22 +53,22 @@ async def get_query(query_id: str):
             return json.loads(result)
 
 
-async def get_view_image(view_url: str):
+async def get_view_image(driver, view_url: str):
     query_pattern = f"{REDASH_SERVER_URL}/queries/([0-9]+)(?!.*#).*$"
     chart_pattern = f"{REDASH_SERVER_URL}/queries/([0-9]+).*#([0-9]+)$"
     dashboard_pattern = f"{REDASH_SERVER_URL}/dashboard/([^?/|>]+)"
 
     if bool(re.search(query_pattern, view_url)):
-        return await _capture_default_table(query_pattern, view_url)
+        return await _capture_default_table(driver, query_pattern, view_url)
     elif bool(re.search(chart_pattern, view_url)):
-        return await _capture_chart(chart_pattern, view_url)
+        return await _capture_chart(driver, chart_pattern, view_url)
     elif bool(re.search(dashboard_pattern, view_url)):
-        return await _capture_dashboard(dashboard_pattern, view_url)
+        return await _capture_dashboard(driver, dashboard_pattern, view_url)
     else:
         raise ValueError(f"The URL pattern {view_url} is not supported")
 
 
-async def _capture_dashboard(dashboard_pattern, view_url):
+async def _capture_dashboard(driver, dashboard_pattern, view_url):
     dashboard_id = re.search(dashboard_pattern, view_url).group(1)
     dashboard = await get_dashboard(dashboard_id)
     if dashboard:
@@ -76,7 +76,7 @@ async def _capture_dashboard(dashboard_pattern, view_url):
         file = re.sub(r'[^\w\s]', '', file)
         filename = os.path.join(FILE_DIR, f"{file}.png")
         if 'public_url' in dashboard:
-            await _async_capture_screenshot(dashboard['public_url'], filename)
+            await _async_capture_screenshot(driver, dashboard['public_url'], filename)
             return filename
         else:
             raise Exception(f"The URL {view_url} needs to be made public")
@@ -84,7 +84,7 @@ async def _capture_dashboard(dashboard_pattern, view_url):
         raise Exception(f"There was a problem getting the url {view_url}")
 
 
-async def _capture_chart(chart_pattern, view_url):
+async def _capture_chart(driver, chart_pattern, view_url):
     regex_result = re.search(chart_pattern, view_url)
     query_id = regex_result.group(1)
     visualization_id = regex_result.group(2)
@@ -95,13 +95,13 @@ async def _capture_chart(chart_pattern, view_url):
         file = f"{query_data['name']}-{visualization[0]['name']}-query-{query_id}-visualization-{visualization_id}"
         file = re.sub(r'[^\w\s]', '', file)
         filename = os.path.join(FILE_DIR, f"{file}.png")
-        await _async_capture_screenshot(embed_url, filename)
+        await _async_capture_screenshot(driver, embed_url, filename)
         return filename
     else:
         raise Exception(f"There was a problem getting the url {view_url}")
 
 
-async def _capture_default_table(query_pattern, view_url):
+async def _capture_default_table(driver, query_pattern, view_url):
     query_id = re.search(query_pattern, view_url).group(1)
     query_data = await get_query(query_id)
     if query_data:
@@ -110,12 +110,12 @@ async def _capture_default_table(query_pattern, view_url):
         file = f"{query_data['name']}-{visualization_id}-query-{query_id}-visualization-{visualization_id}"
         file = re.sub(r'[^\w\s]', '', f"{file}.png")
         filename = os.path.join(FILE_DIR, file)
-        await _async_capture_screenshot(embed_url, filename)
+        await _async_capture_screenshot(driver, embed_url, filename)
         return filename
     else:
         raise Exception(f"There was a problem getting the url {view_url}")
 
 
-async def _async_capture_screenshot(url, filename):
+async def _async_capture_screenshot(driver, url, filename):
     loop = asyncio.get_event_loop()
-    await loop.run_in_executor(executor, get_url_screenshot, url, filename, REDASH_WAIT_FOR_LOAD_TIME)
+    await loop.run_in_executor(executor, get_url_screenshot, driver, url, filename, REDASH_WAIT_FOR_LOAD_TIME)

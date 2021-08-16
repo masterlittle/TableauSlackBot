@@ -1,31 +1,13 @@
 # coding=utf-8
-import asyncio
 import logging
 import time
 from selenium import webdriver
-import chromedriver_binary
+
 from selenium.common.exceptions import NoSuchElementException, NoSuchWindowException, WebDriverException, \
     SessionNotCreatedException
 
 
-def _get_driver():
-    options = webdriver.ChromeOptions()
-    options.add_argument('--no-sandbox')
-    options.add_argument('--remote-debugging-port=9222')
-    options.add_argument("--disable-gpu")
-    options.add_argument("--single-process")
-    options.add_argument('--disable-infobars')
-    options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--headless')
-    options.add_argument("--disable-setuid-sandbox")
-
-    logging.info(chromedriver_binary.chromedriver_filename)
-    driver = webdriver.Chrome(executable_path=chromedriver_binary.chromedriver_filename, options=options)
-    return driver
-
-
-def get_url_screenshot(url: str, filename, wait_load_time: int, retries=1):
-    driver: webdriver.Chrome = _get_driver()
+def get_url_screenshot(driver: webdriver.Chrome, url: str, filename, wait_load_time: int, retries=1):
     try:
         driver.get(url)
         time.sleep(wait_load_time)
@@ -36,12 +18,9 @@ def get_url_screenshot(url: str, filename, wait_load_time: int, retries=1):
 
     except (NoSuchWindowException, NoSuchElementException, WebDriverException, SessionNotCreatedException) as e:
         if retries >= 0:
-            close_driver(driver)
-            get_url_screenshot(url, filename, wait_load_time, retries - 1)
+            get_url_screenshot(driver, url, filename, wait_load_time, retries - 1)
         else:
             raise e
-    finally:
-        close_driver(driver)
 
 
 def close_driver(driver: webdriver.Chrome):
