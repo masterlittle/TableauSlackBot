@@ -4,6 +4,7 @@ import re
 
 import aiohttp
 import xmltodict
+import tableauserverclient as TSC
 
 from app.config import Settings
 
@@ -76,22 +77,19 @@ async def get_view_image(view_url: str):
         raise ValueError(f"Please check the URL {view_url} and try again.")
     else:
         async with aiohttp.ClientSession(**client_args) as session:
-            auth_token, site_id = await get_tableau_auth_token(session)
-            view_id = await get_view_info(session, auth_token, site_id, view_name, workbook_name)
+            auth, site_id = await get_tableau_auth_token(session)
+            view_id = await get_view_info(session, auth, site_id, view_name, workbook_name)
 
-            async with session.get(
-                    f"{TABLEAU_SERVER_URL}/api/{TABLEAU_SERVER_API_VERSION}/sites/{site_id}/views/{view_id}/image?maxAge=15",
-                    timeout=TABLEAU_SERVER_IMAGE_API_TIMEOUT,
-                    headers={'X-Tableau-Auth': auth_token}) as response:
-                if response.status != 200:
-                    response.raise_for_status()
+            tableau_auth = TSC.PersonalAccessTokenAuth(
+                TABLEAU_PERSONAL_ACCESS_TOKEN_NAME, TABLEAU_PERSONAL_ACCESS_TOKEN_SECRET)
+            server = TSC.Server(TABLEAU_SERVER_URL, use_server_version=True)
+            with server.auth.sign_in(tableau_auth):
+                view_item = server.views.get_by_id(view_id)
+                server.views.populate_image(view_item)
                 filename = os.path.join(FILE_DIR, f'{view_name}.png')
-                if response.content:
-                    with open(filename, 'wb') as f:
-                        f.write(await response.content.read())
-                        return filename, view_name
-                else:
-                    raise Exception("Report could not be generated")
+                with open(filename, 'wb') as f:
+                    f.write(view_item.image)
+                    return filename, view_name
 
 
 async def download_view_crosstab(view_url: str):

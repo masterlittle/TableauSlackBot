@@ -21,6 +21,7 @@ async def help(app, body, say, text):
 
 
 async def get_tableau_image(app, body, say, text):
+    retry = 1
     screenshot_filename = None
     try:
         await say("Loading image...")
@@ -28,10 +29,18 @@ async def get_tableau_image(app, body, say, text):
         print(screenshot_filename)
         if screenshot_filename:
             await app.client.files_upload(file=screenshot_filename, channels=body['channel_id'], title=text)
+    except Exception:
+        await retry_request(app, body, retry, say, text)
     finally:
         with contextlib.suppress(FileNotFoundError):
             if screenshot_filename:
                 os.remove(screenshot_filename)
+
+
+async def retry_request(app, body, retry, say, text):
+    if retry > 0:
+        await get_tableau_image(app, body, say, text)
+        retry -= 1
 
 
 async def download_tableau_view(app, body, say, text):
