@@ -91,6 +91,13 @@ def get_create_schedule_view(text, backend_tool: str):
                             {
                                 "text": {
                                     "type": "plain_text",
+                                    "text": "4-HOURLY"
+                                },
+                                "value": "4-HOURLY"
+                            },
+                            {
+                                "text": {
+                                    "type": "plain_text",
                                     "text": "DAILY"
                                 },
                                 "value": "DAILY"

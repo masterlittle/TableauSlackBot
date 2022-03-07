@@ -117,11 +117,12 @@ async def download_view_crosstab(view_url: str):
 
 
 async def get_view_name(view_url: str):
-    pattern = "^.*views/(.*)/(.*)\?.*$"
+    view_url = view_url.strip('>').strip('<')
+    pattern = "^.*views\/(.*)\/(?=(.*)\?.*$|(.*))"
     a = re.search(pattern, view_url)
     if a:
         workbook_name = a.group(1)
-        view_name = a.group(2)
+        view_name = a.group(2) or a.group(3)
         return workbook_name, view_name
     else:
         raise ValueError(f"Please check the URL {view_url} and try again.")

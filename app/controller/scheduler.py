@@ -16,7 +16,7 @@ jobstores = {
 
 job_defaults = {
     'coalesce': True,
-    'max_instances': 3,
+    'max_instances': 1,
     'misfire_grace_time': 3600
 }
 
@@ -29,7 +29,7 @@ def get_scheduler():
 
 
 def add_schedule_from_scheduler(func, args: List, cron_expression: str):
-    job = sch.add_job(func, CronTrigger.from_crontab(cron_expression), args, jitter=5,
+    job = sch.add_job(func, CronTrigger.from_crontab(cron_expression), args, jitter=120,
                       max_instances=1)
     return job
 
